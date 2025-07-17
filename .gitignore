@@ -1,0 +1,38 @@
+# Dart & Flutter
+build/
+.dart_tool/
+.packages
+
+# Flutter 플러그인 메타
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Android
+android/.gradle/
+android/local.properties
+
+# iOS
+ios/Pods/
+ios/Runner.xcworkspace/
+ios/Flutter/Flutter.framework/
+ios/.symlinks/
+
+# macOS
+macos/Flutter/ephemeral/
+
+# Linux
+linux/flutter/ephemeral/
+
+# Windows
+windows/flutter/ephemeral/
+
+# 일반
+.DS_Store
+*.swp
+*~
