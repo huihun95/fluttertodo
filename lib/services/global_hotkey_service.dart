@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,9 +25,9 @@ class HotkeyService {
       
       // Command + , 전역 단축키 등록
       HotKey hotKey = HotKey(
-        KeyCode.comma,
-        modifiers: [KeyModifier.meta], // Command 키 (macOS)
-        scope: HotKeyScope.system, // 시스템 전역에서 동작
+        key: PhysicalKeyboardKey.comma,
+        modifiers: [HotKeyModifier.meta],
+        scope: HotKeyScope.system,         
       );
       
       await hotKeyManager.register(
