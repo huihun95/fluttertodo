@@ -37,6 +37,9 @@ dependencies:
   flutter_riverpod: ^2.6.1
   intl: ^0.20.2
   shared_preferences: ^2.5.3
+  window_manager: ^0.5.1
+  flutter_acrylic: ^1.1.4
+  system_tray: ^2.0.3
 
 dev_dependencies:
   flutter_test:

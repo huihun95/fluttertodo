@@ -5,7 +5,8 @@ import '../models/TaskModel.dart';
 import '../controllers/task_controller.dart';
 
 class TaskCreationBar extends ConsumerStatefulWidget {
-  const TaskCreationBar({super.key});
+  final bool isCompact;
+  const TaskCreationBar({super.key, this.isCompact = false});
 
   @override
   ConsumerState<TaskCreationBar> createState() => _TaskCreationBarState();
@@ -20,39 +21,49 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: widget.isCompact ? const EdgeInsets.all(8) : const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border(top: BorderSide(color: Colors.grey.shade300)),
+        color: Colors.white.withOpacity(0.95), // 약간 투명
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15), // 더 진한 그림자
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // 태스크 옵션들
-          Row(
-            children: [
-              Expanded(
-                child: _buildOptionButton(
-                  '요청자: $_selectedRequester',
-                  () => _showRequesterDialog(),
+          // 태스크 옵션들 (컴팩트 모드에서는 숨김)
+          if (!widget.isCompact) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: _buildOptionButton(
+                    '요청자: $_selectedRequester',
+                    () => _showRequesterDialog(),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildOptionButton(
-                  '마감: ${DateFormat('MM/dd').format(_selectedDeadline)}',
-                  () => _showDeadlineDialog(),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildOptionButton(
+                    '마감: ${DateFormat('MM/dd').format(_selectedDeadline)}',
+                    () => _showDeadlineDialog(),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildOptionButton(
-                  '우선순위: $_selectedPriority',
-                  () => _showPriorityDialog(),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildOptionButton(
+                    '우선순위: $_selectedPriority',
+                    () => _showPriorityDialog(),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
           // 태스크 입력 및 생성
           Row(
             children: [
@@ -60,16 +71,16 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
                 child: TextField(
                   controller: _contentController,
                   decoration: InputDecoration(
-                    hintText: '새 태스크를 입력하세요...',
+                    hintText: widget.isCompact ? '태스크 추가...' : '새 태스크를 입력하세요...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
+                    contentPadding: EdgeInsets.symmetric(
                       horizontal: 12,
-                      vertical: 8,
+                      vertical: widget.isCompact ? 6 : 8,
                     ),
                   ),
-                  maxLines: 2,
+                  maxLines: widget.isCompact ? 1 : 2,
                   minLines: 1,
                   onSubmitted: (_) => _createTask(),
                 ),
