@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/task_controller.dart';
 import '../view_component/task_creation_bar.dart';
+import '../services/global_hotkey_service.dart';
 
 class FloatingTaskView extends ConsumerStatefulWidget {
   const FloatingTaskView({super.key});
@@ -75,9 +76,34 @@ class _FloatingTaskViewState extends ConsumerState<FloatingTaskView> {
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 300),
                   opacity: _isHovered ? 1.0 : 0.0,
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    child: const TaskCreationBar(isCompact: true),
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        child: const TaskCreationBar(isCompact: true),
+                      ),
+                      const SizedBox(height: 4),
+                      // Spotlight 버튼 추가
+                      Container(
+                        width: 300,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final hotkeyService = ref.read(hotkeyServiceProvider);
+                            hotkeyService.showSpotlight();
+                          },
+                          icon: const Icon(Icons.search, size: 16),
+                          label: const Text('빠른 작업 추가 (⌘,)'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade600,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
