@@ -13,8 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Window.initialize();
-  await Window.setEffect(effect: WindowEffect.transparent);
-  Window.makeWindowFullyTransparent();
+  Window.makeWindowFullyTransparent(); // macos 기준 배경 투명하게 만들어줌 다른옵션들은 안됨
   Window.enableFullSizeContentView();
   Window.exitFullscreen();
 
@@ -23,18 +22,14 @@ void main() async {
   const windowOptions = WindowOptions(
     size: Size(320, 260),
     center: false,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
+    skipTaskbar: true,
     alwaysOnTop: true,
     titleBarStyle: TitleBarStyle.hidden,
     windowButtonVisibility: false,
   );
-  
+
   await windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-    await windowManager.setPosition(const Offset(100, 100));
-    await windowManager.setBackgroundColor(Colors.transparent);
+
   });
 
   runApp(const ProviderScope(child: FloatingTodoApp()));
