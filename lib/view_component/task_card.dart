@@ -11,8 +11,7 @@ class TaskCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final priorityColor = _getPriorityColor(task.priority);
-    final isOverdue = task.deadline.isBefore(DateTime.now()) && task.status != 'completed';
+    final isOverdue = task.deadline.isBefore(DateTime.now()) && task.status != '완료';
 
     return GestureDetector(
       onTap: () => _showTaskMenu(context, ref, task),
@@ -50,7 +49,7 @@ class TaskCard extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      task.requester,
+                      task.requester ?? '요청자 없음',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -69,44 +68,62 @@ class TaskCard extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              // 중앙: 태스크 내용
+              // 중앙: 제목과 내용
+              Text(
+                task.title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
               Expanded(
                 child: Text(
                   task.content,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
                     height: 1.3,
                   ),
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: 8),
-              // 하단: 우선순위와 상태
+              // 하단: 담당자와 상태
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: priorityColor.withOpacity(0.1),
+                      color: Colors.green.shade100,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      task.priority.toUpperCase(),
-                      style: TextStyle(
+                      task.assignee,
+                      style: const TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: priorityColor,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.green,
                       ),
                     ),
                   ),
-                  Text(
-                    task.status == 'in_progress' ? '진행중' : '대기중',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey.shade600,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(task.status).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      task.status,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: _getStatusColor(task.status),
+                      ),
                     ),
                   ),
                 ],
@@ -118,14 +135,14 @@ class TaskCard extends ConsumerWidget {
     );
   }
 
-  Color _getPriorityColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case '진행중':
+        return Colors.blue;
+      case '완료':
         return Colors.green;
+      case '보류':
+        return Colors.orange;
       default:
         return Colors.grey;
     }
@@ -164,7 +181,7 @@ class TaskCard extends ConsumerWidget {
               leading: const Icon(Icons.check_circle, color: Colors.green),
               title: const Text('완료하기'),
               onTap: () {
-                ref.read(taskProvider.notifier).completeTask(task.id);
+                ref.read(taskProvider.notifier).updateTaskStatus(task.id, '완료');
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('태스크가 완료되었습니다')),
@@ -197,10 +214,11 @@ class TaskCard extends ConsumerWidget {
   }
 
   void _showEditDialog(BuildContext context, WidgetRef ref, TaskModel task) {
+    final titleController = TextEditingController(text: task.title);
     final contentController = TextEditingController(text: task.content);
-    String selectedRequester = task.requester;
+    String? selectedRequester = task.requester;
+    String selectedAssignee = task.assignee;
     DateTime selectedDeadline = task.deadline;
-    String selectedPriority = task.priority;
 
     showDialog(
       context: context,
@@ -212,50 +230,59 @@ class TaskCard extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-                  controller: contentController,
+                  controller: titleController,
                   decoration: const InputDecoration(
-                    labelText: '태스크 내용',
+                    labelText: '제목',
                     border: OutlineInputBorder(),
                   ),
-                  maxLines: 3,
+                  maxLines: 1,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    labelText: '내용',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 2,
                 ),
                 const SizedBox(height: 16),
                 // 요청자 선택
-                DropdownButtonFormField<String>(
+                DropdownButtonFormField<String?>(
                   value: selectedRequester,
                   decoration: const InputDecoration(
                     labelText: '요청자',
                     border: OutlineInputBorder(),
                   ),
-                  items: ['Self', 'PM', 'Team Lead', 'Client']
+                  items: [null, '나', 'PM', '팀리더', '고객']
                       .map((requester) => DropdownMenuItem(
                             value: requester,
-                            child: Text(requester),
+                            child: Text(requester ?? '선택 안함'),
                           ))
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedRequester = value!;
+                      selectedRequester = value;
                     });
                   },
                 ),
                 const SizedBox(height: 16),
-                // 우선순위 선택
+                // 담당자 선택
                 DropdownButtonFormField<String>(
-                  value: selectedPriority,
+                  value: selectedAssignee,
                   decoration: const InputDecoration(
-                    labelText: '우선순위',
+                    labelText: '담당자',
                     border: OutlineInputBorder(),
                   ),
-                  items: ['high', 'medium', 'low']
-                      .map((priority) => DropdownMenuItem(
-                            value: priority,
-                            child: Text(priority.toUpperCase()),
+                  items: ['내가 담당', '팀원A', '팀원B', '외부업체']
+                      .map((assignee) => DropdownMenuItem(
+                            value: assignee,
+                            child: Text(assignee),
                           ))
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedPriority = value!;
+                      selectedAssignee = value!;
                     });
                   },
                 ),
@@ -312,12 +339,13 @@ class TaskCard extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                if (contentController.text.trim().isNotEmpty) {
+                if (titleController.text.trim().isNotEmpty) {
                   final updatedTask = task.copyWith(
+                    title: titleController.text.trim(),
                     content: contentController.text.trim(),
                     requester: selectedRequester,
+                    assignee: selectedAssignee,
                     deadline: selectedDeadline,
-                    priority: selectedPriority,
                   );
                   ref.read(taskProvider.notifier).editTask(updatedTask);
                   Navigator.pop(context);

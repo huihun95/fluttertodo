@@ -1,18 +1,20 @@
 class TaskModel {
   final String id;
-  final String requester;
-  final DateTime deadline;
+  final String title;
   final String content;
-  final String priority;
+  final String? requester;
+  final String assignee;
+  final DateTime deadline;
   final String status;
   final DateTime createdAt;
 
   TaskModel({
     required this.id,
-    required this.requester,
-    required this.deadline,
+    required this.title,
     required this.content,
-    required this.priority,
+    this.requester,
+    required this.assignee,
+    required this.deadline,
     required this.status,
     required this.createdAt,
   });
@@ -20,10 +22,11 @@ class TaskModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'requester': requester,
-      'deadline': deadline.toIso8601String(),
+      'title': title,
       'content': content,
-      'priority': priority,
+      'requester': requester,
+      'assignee': assignee,
+      'deadline': deadline.toIso8601String(),
       'status': status,
       'createdAt': createdAt.toIso8601String(),
     };
@@ -32,10 +35,11 @@ class TaskModel {
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json['id'],
-      requester: json['requester'],
-      deadline: DateTime.parse(json['deadline']),
+      title: json['title'],
       content: json['content'],
-      priority: json['priority'],
+      requester: json['requester'],
+      assignee: json['assignee'],
+      deadline: DateTime.parse(json['deadline']),
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
     );
@@ -43,19 +47,21 @@ class TaskModel {
 
   TaskModel copyWith({
     String? id,
-    String? requester,
-    DateTime? deadline,
+    String? title,
     String? content,
-    String? priority,
+    String? requester,
+    String? assignee,
+    DateTime? deadline,
     String? status,
     DateTime? createdAt,
   }) {
     return TaskModel(
       id: id ?? this.id,
-      requester: requester ?? this.requester,
-      deadline: deadline ?? this.deadline,
+      title: title ?? this.title,
       content: content ?? this.content,
-      priority: priority ?? this.priority,
+      requester: requester ?? this.requester,
+      assignee: assignee ?? this.assignee,
+      deadline: deadline ?? this.deadline,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
     );

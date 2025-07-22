@@ -18,7 +18,7 @@ class _FloatingTaskViewState extends ConsumerState<FloatingTaskView> {
   Widget build(BuildContext context) {
     final tasks = ref.watch(taskProvider);
     // 완료되지 않은 태스크만 가져와서 생성순으로 정렬 (가장 먼저 등록한 순서)
-    final allTasks = tasks.where((task) => task.status != 'completed').toList();
+    final allTasks = tasks.where((task) => task.status != '완료').toList();
     allTasks.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     
     // 기본적으로 최대 3개만 표시
@@ -40,16 +40,9 @@ class _FloatingTaskViewState extends ConsumerState<FloatingTaskView> {
                   width: 300,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95), // 약간 투명
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
                   child: Center(
                     child: Text(
@@ -122,8 +115,7 @@ class PureTaskCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final priorityColor = _getPriorityColor(task.priority);
-    final isOverdue = task.deadline.isBefore(DateTime.now()) && task.status != 'completed';
+    final isOverdue = task.deadline.isBefore(DateTime.now()) && task.status != '완료';
 
     return GestureDetector(
       onTap: () => _showTaskMenu(context, ref, task),
@@ -132,20 +124,13 @@ class PureTaskCard extends ConsumerWidget {
         height: 80,
         decoration: BoxDecoration(
           color: isOverdue 
-              ? Colors.red.shade50.withOpacity(0.95) 
-              : Colors.white.withOpacity(0.95), // 약간 투명
+              ? Colors.red.shade50
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isOverdue ? Colors.red.shade300 : Colors.grey.shade300,
             width: 1.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15), // 더 진한 그림자
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -162,7 +147,7 @@ class PureTaskCard extends ConsumerWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: priorityColor,
+                          color: Colors.blue.shade600,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -174,7 +159,7 @@ class PureTaskCard extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          task.requester,
+                          task.requester ?? '요청자 없음',
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -195,17 +180,28 @@ class PureTaskCard extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              // 태스크 내용
+              // 제목
+              Text(
+                task.title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              // 내용
               Expanded(
                 child: Text(
                   task.content,
                   style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
                     height: 1.2,
-                    color: Colors.black87,
+                    color: Colors.grey,
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -216,18 +212,6 @@ class PureTaskCard extends ConsumerWidget {
     );
   }
 
-  Color _getPriorityColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return Colors.red.shade600;
-      case 'medium':
-        return Colors.orange.shade600;
-      case 'low':
-        return Colors.green.shade600;
-      default:
-        return Colors.grey.shade600;
-    }
-  }
 
   void _showTaskMenu(BuildContext context, WidgetRef ref, dynamic task) {
     showDialog(
@@ -243,7 +227,7 @@ class PureTaskCard extends ConsumerWidget {
               leading: const Icon(Icons.check_circle, color: Colors.green),
               title: const Text('완료하기'),
               onTap: () {
-                ref.read(taskProvider.notifier).completeTask(task.id);
+                ref.read(taskProvider.notifier).updateTaskStatus(task.id, '완료');
                 Navigator.pop(context);
               },
             ),

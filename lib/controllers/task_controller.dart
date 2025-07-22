@@ -29,14 +29,18 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     _saveTasks();
   }
 
-  void completeTask(String taskId) {
+  void updateTaskStatus(String taskId, String status) {
     state = state.map((task) {
       if (task.id == taskId) {
-        return task.copyWith(status: 'completed');
+        return task.copyWith(status: status);
       }
       return task;
     }).toList();
     _saveTasks();
+  }
+
+  void completeTask(String taskId) {
+    updateTaskStatus(taskId, '완료');
   }
 
   void deleteTask(String taskId) {
@@ -60,12 +64,12 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
       return task.deadline.year == today.year &&
           task.deadline.month == today.month &&
           task.deadline.day == today.day &&
-          task.status != 'completed';
+          task.status != '완료';
     }).toList();
   }
 
   List<TaskModel> getAllTasks() {
-    return state.where((task) => task.status != 'completed').toList();
+    return state.where((task) => task.status != '완료').toList();
   }
 }
 

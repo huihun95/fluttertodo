@@ -13,26 +13,20 @@ class TaskCreationBar extends ConsumerStatefulWidget {
 }
 
 class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
+  final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  String _selectedRequester = 'Self';
+  String? _selectedRequester;
+  String _selectedAssignee = '내가 담당';
   DateTime _selectedDeadline = DateTime.now().add(const Duration(days: 1));
-  String _selectedPriority = 'medium';
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: widget.isCompact ? const EdgeInsets.all(8) : const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95), // 약간 투명
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15), // 더 진한 그림자
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -42,7 +36,7 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
               children: [
                 Expanded(
                   child: _buildOptionButton(
-                    '요청자: $_selectedRequester',
+                    '요청자: ${_selectedRequester ?? '선택 안함'}',
                     () => _showRequesterDialog(),
                   ),
                 ),
@@ -56,8 +50,8 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildOptionButton(
-                    '우선순위: $_selectedPriority',
-                    () => _showPriorityDialog(),
+                    '담당자: $_selectedAssignee',
+                    () => _showAssigneeDialog(),
                   ),
                 ),
               ],
@@ -68,21 +62,42 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
           Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _contentController,
-                  decoration: InputDecoration(
-                    hintText: widget.isCompact ? '태스크 추가...' : '새 태스크를 입력하세요...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                child: Column(
+                  children: [
+                    if (!widget.isCompact)
+                      TextField(
+                        controller: _titleController,
+                        decoration: InputDecoration(
+                          hintText: '제목...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        maxLines: 1,
+                        onSubmitted: (_) => _createTask(),
+                      ),
+                    if (!widget.isCompact) const SizedBox(height: 8),
+                    TextField(
+                      controller: _contentController,
+                      decoration: InputDecoration(
+                        hintText: widget.isCompact ? '태스크 추가...' : '내용...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: widget.isCompact ? 6 : 8,
+                        ),
+                      ),
+                      maxLines: widget.isCompact ? 1 : 2,
+                      minLines: 1,
+                      onSubmitted: (_) => _createTask(),
                     ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: widget.isCompact ? 6 : 8,
-                    ),
-                  ),
-                  maxLines: widget.isCompact ? 1 : 2,
-                  minLines: 1,
-                  onSubmitted: (_) => _createTask(),
+                  ],
                 ),
               ),
               const SizedBox(width: 8),
@@ -129,12 +144,12 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
         title: const Text('요청자 선택'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: ['Self', 'PM', 'Team Lead', 'Client']
+          children: ['선택 안함', '나', 'PM', '팀리더', '고객']
               .map((requester) => ListTile(
                     title: Text(requester),
                     onTap: () {
                       setState(() {
-                        _selectedRequester = requester;
+                        _selectedRequester = requester == '선택 안함' ? null : requester;
                       });
                       Navigator.pop(context);
                     },
@@ -171,19 +186,19 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
     }
   }
 
-  void _showPriorityDialog() {
+  void _showAssigneeDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('우선순위 선택'),
+        title: const Text('담당자 선택'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: ['high', 'medium', 'low']
-              .map((priority) => ListTile(
-                    title: Text(priority.toUpperCase()),
+          children: ['내가 담당', '팀원A', '팀원B', '외부업체']
+              .map((assignee) => ListTile(
+                    title: Text(assignee),
                     onTap: () {
                       setState(() {
-                        _selectedPriority = priority;
+                        _selectedAssignee = assignee;
                       });
                       Navigator.pop(context);
                     },
@@ -195,19 +210,24 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
   }
 
   void _createTask() {
-    if (_contentController.text.trim().isEmpty) return;
+    final title = widget.isCompact ? _contentController.text.trim() : _titleController.text.trim();
+    final content = widget.isCompact ? '' : _contentController.text.trim();
+    
+    if (title.isEmpty) return;
 
     final task = TaskModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      content: content,
       requester: _selectedRequester,
+      assignee: _selectedAssignee,
       deadline: _selectedDeadline,
-      content: _contentController.text.trim(),
-      priority: _selectedPriority,
-      status: 'pending',
+      status: '진행중',
       createdAt: DateTime.now(),
     );
 
     ref.read(taskProvider.notifier).addTask(task);
+    _titleController.clear();
     _contentController.clear();
     
     // 성공 메시지 표시
@@ -221,6 +241,7 @@ class _TaskCreationBarState extends ConsumerState<TaskCreationBar> {
 
   @override
   void dispose() {
+    _titleController.dispose();
     _contentController.dispose();
     super.dispose();
   }

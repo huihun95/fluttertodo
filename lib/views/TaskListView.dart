@@ -11,17 +11,6 @@ class TaskListView extends ConsumerWidget {
     final tasks = ref.watch(taskProvider);
     final allTasks = tasks.where((task) => task.status != 'completed').toList();
 
-    // 우선순위별로 정렬
-    allTasks.sort((a, b) {
-      final priorityOrder = {'high': 3, 'medium': 2, 'low': 1};
-      final aPriority = priorityOrder[a.priority] ?? 0;
-      final bPriority = priorityOrder[b.priority] ?? 0;
-      if (aPriority != bPriority) {
-        return bPriority.compareTo(aPriority); // 높은 우선순위부터
-      }
-      return a.deadline.compareTo(b.deadline); // 마감일 순
-    });
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('전체 태스크'),
