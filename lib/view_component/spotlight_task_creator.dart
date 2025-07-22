@@ -108,7 +108,7 @@ class _SpotlightTaskCreatorState extends ConsumerState<SpotlightTaskCreator>
         child: GestureDetector(
           onTap: _closeWithAnimation,
           child: Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.transparent, // 투명하게 변경
             child: Center(
               child: GestureDetector(
                 onTap: () {}, // 내부 클릭 시 닫히지 않도록
@@ -119,7 +119,9 @@ class _SpotlightTaskCreatorState extends ConsumerState<SpotlightTaskCreator>
                       scale: _scaleAnimation.value,
                       child: Opacity(
                         opacity: _opacityAnimation.value,
-                        child: _buildSpotlightWindow(),
+                        child: IntrinsicHeight(
+                          child: _buildSpotlightWindow(),
+                        ),
                       ),
                     );
                   },
@@ -134,8 +136,13 @@ class _SpotlightTaskCreatorState extends ConsumerState<SpotlightTaskCreator>
 
   Widget _buildSpotlightWindow() {
     return Container(
-      width: 600,
-      padding: const EdgeInsets.all(20),
+      width: 500,
+      constraints: const BoxConstraints(
+        maxWidth: 500,
+        minHeight: 60,
+        maxHeight: 80,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -143,7 +150,7 @@ class _SpotlightTaskCreatorState extends ConsumerState<SpotlightTaskCreator>
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -161,9 +168,11 @@ class _SpotlightTaskCreatorState extends ConsumerState<SpotlightTaskCreator>
                   fontSize: 16,
                 ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                isDense: true,
               ),
               style: const TextStyle(fontSize: 16),
+              maxLines: 1,
               onSubmitted: (_) => _createTask(),
             ),
           ),
@@ -174,19 +183,19 @@ class _SpotlightTaskCreatorState extends ConsumerState<SpotlightTaskCreator>
           Container(
             decoration: BoxDecoration(
               color: Colors.blue.shade600,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: IconButton(
               onPressed: _createTask,
               icon: const Icon(
                 Icons.add,
                 color: Colors.white,
-                size: 20,
+                size: 18,
               ),
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               constraints: const BoxConstraints(
-                minWidth: 36,
-                minHeight: 36,
+                minWidth: 32,
+                minHeight: 32,
               ),
             ),
           ),

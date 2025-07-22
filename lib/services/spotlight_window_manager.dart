@@ -24,8 +24,8 @@ class SpotlightWindowManager {
       _originalAlwaysOnTop = await windowManager.isAlwaysOnTop();
       _originalSkipTaskbar = await windowManager.isSkipTaskbar();
       
-      // Spotlight 모드로 창 변경
-      await windowManager.setSize(const Size(600, 450));
+      // Spotlight 모드로 창 변경 (스팟라이트 창에 맞는 크기)
+      await windowManager.setSize(const Size(520, 100));
       await windowManager.center();
       await windowManager.setAlwaysOnTop(true);
       await windowManager.setSkipTaskbar(false); // 독에서 보이도록

@@ -116,7 +116,9 @@ class _FloatingTodoAppState extends ConsumerState<FloatingTodoApp> {
             Material(
               color: Colors.transparent,
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                height: 80,
+                width: 500,
+                color: Colors.transparent,
                 child: Center(
                   child: SpotlightTaskCreator(
                     onClose: _closeSpotlight,
