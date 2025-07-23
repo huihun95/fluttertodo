@@ -16,6 +16,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()  // WebSocket 엔드포인트 허용
+                .requestMatchers("/actuator/health").permitAll()  // 헬스체크 허용
                 .anyRequest().authenticated()
             );
         

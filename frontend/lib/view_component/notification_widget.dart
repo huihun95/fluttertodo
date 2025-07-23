@@ -392,7 +392,7 @@ class NotificationItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: notification.isRead ? Colors.transparent : Colors.blue.shade25,
+            color: notification.isRead ? Colors.transparent : Colors.blue,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

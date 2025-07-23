@@ -38,10 +38,8 @@ class _FloatingTaskViewState extends ConsumerState<FloatingTaskView> {
   }
 
   void _setupNotificationListener() {
-    final notificationService = ref.read(notificationServiceProvider);
-    
-    // TODO: 실제 알림 수신 시 인앱 팝업 표시
-    // 이 부분은 추후 실제 알림 수신 시 구현
+    // TODO: WebSocket 메시지 수신 시 알림 팝업 표시 로직 구현
+    // 필요시 NotificationService에서 새 알림 이벤트를 감지하여 팝업 표시
   }
 
   void _showNotificationPopup(AppNotification notification) {

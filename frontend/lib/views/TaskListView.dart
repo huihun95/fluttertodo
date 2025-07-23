@@ -92,7 +92,7 @@ class _TaskListViewState extends ConsumerState<TaskListView> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blue.shade25,
+                color: Colors.blue,
                 border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
               ),
               child: const TaskCreationBar(isCompact: true),

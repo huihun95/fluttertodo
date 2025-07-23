@@ -32,6 +32,6 @@ public interface TodoTaskRepository extends JpaRepository<TodoTask, UUID> {
     List<TodoTask> findPendingTasksByAssignee(@Param("assigneeId") UUID assigneeId);
     
     // 마감일이 임박한 태스크들 조회 (팀별)
-    @Query("SELECT t FROM TodoTask t WHERE t.team.id = :teamId AND t.status != 'COMPLETED' AND t.deadline <= CURRENT_DATE + 1 ORDER BY t.deadline ASC")
-    List<TodoTask> findUpcomingDeadlineTasks(@Param("teamId") UUID teamId);
+    @Query("SELECT t FROM TodoTask t WHERE t.team.id = :teamId AND t.status != 'COMPLETED' AND t.deadline <= :tomorrow ORDER BY t.deadline ASC")
+    List<TodoTask> findUpcomingDeadlineTasks(@Param("teamId") UUID teamId, @Param("tomorrow") java.time.LocalDateTime tomorrow);
 }

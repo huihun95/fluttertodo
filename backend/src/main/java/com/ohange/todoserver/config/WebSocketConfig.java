@@ -16,8 +16,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        // Flutter 앱용 순수 WebSocket 엔드포인트
         registry.addHandler(taskWebSocketHandler, "/ws/tasks")
-                .setAllowedOrigins("*") // 개발용, 운영시 제한 필요
-                .withSockJS(); // SockJS 지원 (WebSocket을 지원하지 않는 브라우저용)
+                .setAllowedOrigins("*"); // 개발용, 운영시 제한 필요
+        
+        // 웹 브라우저용 SockJS 엔드포인트 (필요시)
+        registry.addHandler(taskWebSocketHandler, "/ws/tasks-sockjs")
+                .setAllowedOrigins("*")
+                .withSockJS();
     }
 }

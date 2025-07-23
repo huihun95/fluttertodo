@@ -99,13 +99,13 @@ class NotificationService extends ChangeNotifier {
     if (_isInitialized) return;
     
     // WebSocket 메시지 리스너 등록
-    _webSocketService.addListener(MessageType.taskAssigned, _onTaskAssigned);
-    _webSocketService.addListener(MessageType.taskCompleted, _onTaskCompleted);
-    _webSocketService.addListener(MessageType.taskUpdated, _onTaskUpdated);
-    _webSocketService.addListener(MessageType.taskDeleted, _onTaskDeleted);
-    _webSocketService.addListener(MessageType.teamMemberAdded, _onTeamMemberAdded);
-    _webSocketService.addListener(MessageType.teamMemberRemoved, _onTeamMemberRemoved);
-    _webSocketService.addListener(MessageType.userOnlineStatus, _onUserOnlineStatus);
+    _webSocketService.addWebSocketListener(MessageType.taskAssigned, _onTaskAssigned);
+    _webSocketService.addWebSocketListener(MessageType.taskCompleted, _onTaskCompleted);
+    _webSocketService.addWebSocketListener(MessageType.taskUpdated, _onTaskUpdated);
+    _webSocketService.addWebSocketListener(MessageType.taskDeleted, _onTaskDeleted);
+    _webSocketService.addWebSocketListener(MessageType.teamMemberAdded, _onTeamMemberAdded);
+    _webSocketService.addWebSocketListener(MessageType.teamMemberRemoved, _onTeamMemberRemoved);
+    _webSocketService.addWebSocketListener(MessageType.userOnlineStatus, _onUserOnlineStatus);
     
     _isInitialized = true;
     log('알림 서비스 초기화 완료');
@@ -297,13 +297,13 @@ class NotificationService extends ChangeNotifier {
   void dispose() {
     // WebSocket 리스너 제거
     if (_isInitialized) {
-      _webSocketService.removeListener(MessageType.taskAssigned, _onTaskAssigned);
-      _webSocketService.removeListener(MessageType.taskCompleted, _onTaskCompleted);
-      _webSocketService.removeListener(MessageType.taskUpdated, _onTaskUpdated);
-      _webSocketService.removeListener(MessageType.taskDeleted, _onTaskDeleted);
-      _webSocketService.removeListener(MessageType.teamMemberAdded, _onTeamMemberAdded);
-      _webSocketService.removeListener(MessageType.teamMemberRemoved, _onTeamMemberRemoved);
-      _webSocketService.removeListener(MessageType.userOnlineStatus, _onUserOnlineStatus);
+      _webSocketService.removeWebSocketListener(MessageType.taskAssigned, _onTaskAssigned);
+      _webSocketService.removeWebSocketListener(MessageType.taskCompleted, _onTaskCompleted);
+      _webSocketService.removeWebSocketListener(MessageType.taskUpdated, _onTaskUpdated);
+      _webSocketService.removeWebSocketListener(MessageType.taskDeleted, _onTaskDeleted);
+      _webSocketService.removeWebSocketListener(MessageType.teamMemberAdded, _onTeamMemberAdded);
+      _webSocketService.removeWebSocketListener(MessageType.teamMemberRemoved, _onTeamMemberRemoved);
+      _webSocketService.removeWebSocketListener(MessageType.userOnlineStatus, _onUserOnlineStatus);
     }
     super.dispose();
   }

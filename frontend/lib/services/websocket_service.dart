@@ -74,7 +74,7 @@ class WebSocketMessage {
 
 // WebSocket 서비스
 class WebSocketService extends ChangeNotifier {
-  static const String _baseUrl = 'ws://localhost:8080/ws/tasks';
+  static const String _baseUrl = 'ws://127.0.0.1:8080/ws/tasks';
   static const int _reconnectDelay = 3000; // 3초
   static const int _maxReconnectAttempts = 5;
 
@@ -130,13 +130,23 @@ class WebSocketService extends ChangeNotifier {
 
       log('WebSocket 연결 시도: $url');
       
-      _channel = WebSocketChannel.connect(Uri.parse(url));
+      _channel = WebSocketChannel.connect(
+        Uri.parse(url),
+        protocols: ['websocket'], // 프로토콜 명시
+      );
+      
+      // 연결 타임아웃 설정 (5초)
+      await Future.any([
+        _channel!.ready,
+        Future.delayed(const Duration(seconds: 5), () => throw 'Connection timeout'),
+      ]);
       
       // WebSocket 스트림 리스닝
       _channel!.stream.listen(
         _onMessage,
         onError: _onError,
         onDone: _onDisconnected,
+        cancelOnError: false, // 에러 발생 시에도 스트림 유지
       );
 
       _setState(WebSocketState.connected);
@@ -257,16 +267,16 @@ class WebSocketService extends ChangeNotifier {
     });
   }
 
-  // 이벤트 리스너 등록
-  void addListener(MessageType type, Function(WebSocketMessage) callback) {
+  // WebSocket 이벤트 리스너 등록
+  void addWebSocketListener(MessageType type, Function(WebSocketMessage) callback) {
     if (!_listeners.containsKey(type)) {
       _listeners[type] = [];
     }
     _listeners[type]!.add(callback);
   }
 
-  // 이벤트 리스너 제거
-  void removeListener(MessageType type, Function(WebSocketMessage) callback) {
+  // WebSocket 이벤트 리스너 제거
+  void removeWebSocketListener(MessageType type, Function(WebSocketMessage) callback) {
     _listeners[type]?.remove(callback);
   }
 

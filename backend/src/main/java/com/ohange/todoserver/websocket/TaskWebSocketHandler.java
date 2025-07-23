@@ -30,6 +30,7 @@ public class TaskWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        System.out.println("=== WebSocket 연결 시도 감지 ===");
         String userId = getUserIdFromSession(session);
         String teamId = getTeamIdFromSession(session);
         

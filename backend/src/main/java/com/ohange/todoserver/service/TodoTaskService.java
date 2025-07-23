@@ -197,7 +197,8 @@ public class TodoTaskService {
     // 마감일이 임박한 태스크들 조회
     @Transactional(readOnly = true)
     public List<TodoTask> getUpcomingDeadlineTasks(UUID teamId) {
-        return todoTaskRepository.findUpcomingDeadlineTasks(teamId);
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+        return todoTaskRepository.findUpcomingDeadlineTasks(teamId, tomorrow);
     }
 
     // Helper 메서드
