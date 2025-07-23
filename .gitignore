@@ -36,3 +36,7 @@ windows/flutter/ephemeral/
 .DS_Store
 *.swp
 *~
+
+# 환경 변수
+.env
+.env.local

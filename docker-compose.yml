@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: fluttertodo-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fluttertodo}
+      POSTGRES_USER: ${POSTGRES_USER:-fluttertodo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fluttertodo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fluttertodo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fluttertodo-backend
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-fluttertodo}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-fluttertodo}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_SHOW_SQL: ${JPA_SHOW_SQL:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fluttertodo-network
+
+volumes:
+  postgres_data:
+
+networks:
+  fluttertodo-network:
+    driver: bridge
