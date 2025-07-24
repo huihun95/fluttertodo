@@ -43,7 +43,6 @@ class HotkeyService {
       print('✅ 전역 단축키 등록 완료: Command + ,');
     } catch (e) {
       print('❌ 전역 단축키 등록 실패: $e');
-      print('💡 해결방법: 시스템 환경설정 > 보안 및 개인정보보호 > 접근성에서 앱 권한 허용');
     }
   }
   
